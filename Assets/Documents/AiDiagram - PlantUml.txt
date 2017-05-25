@@ -1,0 +1,36 @@
+@startuml
+State JobsAI{
+  [*] --> Unemployed 
+  Unemployed --> Unemployed : seachJob:false
+  Unemployed --> HasJob : seachJob:true
+  HasJob --> Unemployed : jobDestroyed
+}
+
+State HomeAI {
+  [*] --> Homeless
+  Homeless --> Homeless : searchHome:false
+  Homeless --> HasHome : searchHome:true
+  HasHome --> Homeless : homeDestroyed
+}
+
+State DayAI {
+  [*] --> Idle
+  Idle --> WalkHome : hasHome && !workingTime
+  Idle --> WalkWork : hasWork && workingTime
+  WalkHome --> Idle : !hasHome
+  WalkHome --> AtHome : isAtHome && !workingTime
+  WalkHome --> WalkWork : hasWork && workingTime
+  AtHome --> GetSupplies : homeNeedSupplies
+  GetSupplies --> BuySupplies : atSupplyStore
+  BuySupplies --> GetSupplies : roomForMore && needSupplies
+  BuySupplies --> WalkHome : !needSupplies || !roomForMore
+  AtHome --> WalkWork : hasWork && workingTime
+  WalkWork --> WalkHome : hasHome && !workingTime || !hasWork
+  WalkWork --> AtWork : hasWork && isAtWork && workingTime
+  AtWork --> Working : hasWork && needToWork
+  AtWork --> WalkHome : isAtWork && !workingTime || !hasWork
+  Working --> WalkWork : jobDone || |workingTime
+}
+
+DayAI --> Die : isHungry !! isThirsty
+@enduml
