@@ -64,10 +64,27 @@ public class VillagerAI : MonoBehaviour {
                 case DayState.WORKING:
                     working();
                     break;
+                case DayState.WALK_HOME:
+                    walkHome();
+                    break;
 			}
 			yield return null;
 		}
 	}
+
+    private void walkHome()
+    {
+        if (homeState == HomeState.HAS_HOME)
+        {
+            agent.enabled = true;
+            agent.destination = villager.getHomePosition();
+        }
+        else
+        {
+            agent.enabled = false;
+            dayState = DayState.IDLE;
+        }
+    }
 
     private void atWork()
     {
@@ -77,6 +94,10 @@ public class VillagerAI : MonoBehaviour {
         } else if (!JobsManager.instance.isWorkingTime())
         {
             dayState = DayState.WALK_HOME;
+            Vector3 work_entry_position = transform.position;
+            work_entry_position.x = villager.getWorkPosition().x;
+            work_entry_position.z = villager.getWorkPosition().z;
+            transform.position = work_entry_position;
         }
     }
 
@@ -131,7 +152,11 @@ public class VillagerAI : MonoBehaviour {
 
     private void searchForHome()
     {
-        
+        if (HouseManager.instance.applyForHouse(villager))
+        {
+            Debug.Log("has_home");
+            homeState = HomeState.HAS_HOME;
+        }
     }
 
     private void isJobDestroied()
@@ -164,6 +189,7 @@ public class VillagerAI : MonoBehaviour {
 	}
 
 	void OnTriggerEnter(Collider other) {
+        Debug.Log(dayState);
 		if (dayState == DayState.WALK_WORK) {
             dayState = DayState.AT_WORK;
 			agent.enabled = false;

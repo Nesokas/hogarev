@@ -6,19 +6,23 @@ using UnityEngine;
 public class JobsManager : MonoBehaviour {
 
 	public static JobsManager instance;
-	public List<Building> buildings;
+	public List<JobBuilding> buildings;
+
+    public bool workingTime;
 
 	public void Awake(){
 		if (instance == null)
 			instance = this;
+
+        workingTime = true;
 	}
 
-	public void addBuilding(Building building) {
+	public void addBuilding(JobBuilding building) {
 		buildings.Add (building);
 	}
 
 	public bool applyForJob(Villager villager) {
-		foreach (Building building in buildings) {
+		foreach (JobBuilding building in buildings) {
 			if (building.hasJobs()) {
 				building.hire (villager);
 				return true;
@@ -30,6 +34,6 @@ public class JobsManager : MonoBehaviour {
 
     internal bool isWorkingTime()
     {
-        return true;
+        return workingTime;
     }
 }

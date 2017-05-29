@@ -10,14 +10,29 @@ public class Villager : MonoBehaviour {
 		Female
 	}
 
-	int age;
+	public int age;
+    public string firstName;
 	Gender gender;
-	Villager spounce;
-	List<Villager> children;
-	public Building job;
-	Building home;
+	public JobBuilding job;
 
-	public void setJob(Building job){
+    public Family family;
+
+    Lexic.NameGenerator namegen;
+
+    void Start()
+    {
+        namegen = GameObject.FindWithTag("NameGenerator").GetComponent<Lexic.NameGenerator>();
+        string familyName = namegen.GetNextRandomName();
+        firstName = namegen.GetNextRandomName();
+        family = new Family(familyName, this, null);
+    }
+
+    internal Family getFamily()
+    {
+        return family;
+    }
+
+    public void setJob(JobBuilding job){
 		this.job = job;
 	}
 
@@ -29,7 +44,7 @@ public class Villager : MonoBehaviour {
 		this.job = null;
 	}
 
-	public void moveIn(Building building) {}
+	public void moveIn(JobBuilding building) {}
 
 	public void moveOut() {}
 
@@ -49,5 +64,23 @@ public class Villager : MonoBehaviour {
         }
 
         return transform.position;
+    }
+
+    internal void newFamily()
+    {
+        family = new Family(namegen.GetNextRandomName(), this, null);
+    }
+
+    internal Vector3 getHomePosition()
+    {
+        if(hasHome())
+            return family.getHome().getEnterPosition();
+
+        return transform.position;
+    }
+
+    private bool hasHome()
+    {
+        return family.getHome() != null;
     }
 }
