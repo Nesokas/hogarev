@@ -21,14 +21,23 @@ public class Villager : MonoBehaviour {
 
     void Start()
     {
-        namegen = GameObject.FindWithTag("NameGenerator").GetComponent<Lexic.NameGenerator>();
-        string familyName = namegen.GetNextRandomName();
-        firstName = namegen.GetNextRandomName();
-        family = new Family(familyName, this, null);
+        generateFamily();
+    }
+
+    void generateFamily()
+    {
+        if (family == null)
+        {
+            namegen = GameObject.FindWithTag("NameGenerator").GetComponent<Lexic.NameGenerator>();
+            string familyName = namegen.GetNextRandomName();
+            firstName = namegen.GetNextRandomName();
+            family = new Family(familyName, this, null);
+        }
     }
 
     internal Family getFamily()
     {
+        generateFamily();
         return family;
     }
 
@@ -56,7 +65,7 @@ public class Villager : MonoBehaviour {
 		return transform.position;
 	}
 
-    internal Vector3 getWorkingPosition()
+    internal Vector3 getAtWorkPosition()
     {
         if (hasJob())
         {
@@ -82,5 +91,20 @@ public class Villager : MonoBehaviour {
     private bool hasHome()
     {
         return family.getHome() != null;
+    }
+
+    internal Vector3 getAtHomePosition()
+    {
+        if (hasHome())
+        {
+            return family.getHome().transform.position;
+        }
+
+        return transform.position;
+    }
+
+    internal House getHome()
+    {
+        return family.getHome();
     }
 }

@@ -67,10 +67,29 @@ public class VillagerAI : MonoBehaviour {
                 case DayState.WALK_HOME:
                     walkHome();
                     break;
+                case DayState.AT_HOME:
+                    atHome();
+                    break;
 			}
 			yield return null;
 		}
 	}
+
+    private void atHome()
+    {
+        if (homeState != HomeState.HAS_HOME)
+        {
+            dayState = DayState.IDLE;
+        }
+        else if (JobsManager.instance.isWorkingTime())
+        {
+            dayState = DayState.WALK_WORK;
+            Vector3 home_entry_position = transform.position;
+            home_entry_position.x = villager.getHomePosition().x;
+            home_entry_position.z = villager.getHomePosition().z;
+            transform.position = home_entry_position;
+        }
+    }
 
     private void walkHome()
     {
@@ -154,7 +173,6 @@ public class VillagerAI : MonoBehaviour {
     {
         if (HouseManager.instance.applyForHouse(villager))
         {
-            Debug.Log("has_home");
             homeState = HomeState.HAS_HOME;
         }
     }
@@ -189,14 +207,24 @@ public class VillagerAI : MonoBehaviour {
 	}
 
 	void OnTriggerEnter(Collider other) {
-        Debug.Log(dayState);
-		if (dayState == DayState.WALK_WORK) {
+
+        Building building = other.gameObject.GetComponentInParent<Building>();
+
+		if (dayState == DayState.WALK_WORK && building == villager.job) {
             dayState = DayState.AT_WORK;
 			agent.enabled = false;
 			Vector3 work_position = transform.position;
-			work_position.x = villager.getWorkingPosition ().x;
-			work_position.z = villager.getWorkingPosition ().z;
+			work_position.x = villager.getAtWorkPosition ().x;
+			work_position.z = villager.getAtWorkPosition ().z;
 			transform.position = work_position;
-		}
-	}
+		} else if (dayState == DayState.WALK_HOME && building == villager.getHome())
+        {
+            dayState = DayState.AT_HOME;
+            agent.enabled = false;
+            Vector3 home_position = transform.position;
+            home_position.x = villager.getAtHomePosition().x;
+            home_position.z = villager.getAtHomePosition().z;
+            transform.position = home_position;
+        }
+}
 }
